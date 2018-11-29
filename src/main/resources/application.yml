@@ -1,0 +1,28 @@
+security:
+  oauth2:
+    client:
+      clientId: 641825762881109
+      clientSecret: c690592b4519805ff0804885de4d634f
+      accessTokenUri: https://graph.facebook.com/oauth/access_token
+      userAuthorizationUri: https://www.facebook.com/dialog/oauth
+      tokenName: oauth_token
+      authenticationScheme: query
+      clientAuthenticationScheme: form
+    resource:
+      userInfoUri: https://graph.facebook.com/me
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    
+    
+spring:
+  main:
+    allow-bean-definition-overriding: true
+
+  jpa:
+    hibernate.ddl-auto: update
+  datasource:
+    url: jdbc:postgresql://se-term-project.c5rdsiue8ak6.us-east-2.rds.amazonaws.com:5432/se_term_project
+    username : ellisa
+    password: Password*987

@@ -1,0 +1,192 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+</head>
+<body>
+
+
+<div class=" authenticated" style="display:none">
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<a class="navbar-brand" href="#"> </a>
+			<a class="navbar-brand" href="/">Home</a>
+			
+			<a th:if="${isAdmin == null}" class="navbar-brand"	href="/teams">All Teams</a>
+			
+			<a class="navbar-brand" href="/" onClick="logout()">Logout</a>
+		</nav>
+</div>
+
+
+	<div class="container " >
+	<div class ="row">
+	<div class="col-md-9">
+		<div class="container unauthenticated">
+		    Login with: <a href="/login">Facebook</a>
+		</div>
+		<div th:if="${messageBlocked != null}">
+			<h3><p th:text="${messageBlocked}"></p></h3>
+		</div>
+		<div class="container authenticated" style="display: none;">
+			<div> Logged in as: <span id="user"> </span></div>      	
+		</div>
+		
+		<div class="authenticated" style="display: none;">
+		<div th:if="${isAdmin == null}">
+			<h3>Latest scores for today</h3>
+		
+		<table class="table">
+		    <thead>
+		    <tr>
+		      <th scope="col">Location</th>
+		      <th scope="col">Time</th>
+		      <th scope="col">Home team</th>
+		      <th scope="col">Away team</th>
+		      <th scope="col">Home Score</th>
+		      <th scope="col">Away Score</th>
+		    </tr>
+		  </thead>
+		  <tr th:each="gameDetail : ${gameDetails}" >
+		     		<td th:text="${gameDetail.get('location')}" >  </td>
+		  			<td th:text="${gameDetail.get('time')}" >  </td>
+		  			<td th:text="${gameDetail.get('homeTeam')}" >  </td>
+		  			<td th:text="${gameDetail.get('awayTeam')}" >  </td>
+		  			<td th:text="${gameDetail.get('homeScore')}" >  </td>
+		  			<td th:text="${gameDetail.get('awayScore')}" >  </td>
+		  </tr>    	
+  		</table>
+  		
+  		<div th:if="${not #lists.isEmpty(favDetails)}">
+  		<h3>My Favorite Teams</h3>
+  		
+			<table class="table">
+		    <thead>
+		    <tr>
+		      <th scope="col">ID</th>
+		      <th scope="col">Name</th>
+		      <th scope="col">City</th>
+		      <th scope="col">Abbreviation</th>
+		      <th scope="col">Team Profile</th>
+		      
+		    </tr>
+		  </thead>
+		  <tr th:each="gameDetail : ${favDetails}" >
+		     	<td th:text="${gameDetail.get('ID')}" >  </td>
+		  		<td th:text="${gameDetail.get('Name')}" >  </td>
+		  		<td th:text="${gameDetail.get('City')}" >  </td>
+		  		<td th:text="${gameDetail.get('Abbreviation')}" >  </td>		
+		  		<td > <a th:href="@{~/team?id=} + ${gameDetail.get('ID')}" th:text="Profile"> </a> </td>
+		  </tr>    	
+  		</table>		
+		</div>  		
+		</div>
+		
+		</div>
+		<div class="authenticated" style="display: none;">
+			<div th:if="not ${isAdmin == null}">
+			<h3>List of Users</h3>
+  		
+			<table class="table">
+		    <thead>
+		    <tr>
+		      <th scope="col">Facebook ID</th>
+		      <th scope="col">Full Name</th>
+		      <th scope="col"></th>
+		      
+		    </tr>
+		  </thead>
+		  <tr th:each="userDetail : ${userList}" >
+		     		
+		     		<td th:text="${userDetail.get('FacebookId')}" >  </td>
+		  			<td th:text="${userDetail.get('FullName')}" >  </td>
+		  			<td th:if=" not ${#lists.contains(blockedUser,userDetail.get('FacebookId'))}">
+		  				<form  th:action="@{/blockUser}" id ="blockUser" method="get">
+		  				<input type= "hidden" name ="id" th:value="${userDetail.get('FacebookId')}">
+		  				<button  class="btn btn-primary" onClick="submitBlockUser" >Block User</button>
+					</form>
+  					</td>
+		  			<td th:if="  ${#lists.contains(blockedUser,userDetail.get('FacebookId'))}">
+  						Blocked
+  					</td>
+					
+		  			
+		  			
+		  </tr>    	
+  		</table>		
+			
+			</div>
+		</div>
+	</div>
+	<div th:if="${not #lists.isEmpty(notificatons)}" class="col-md-3 authenticated" style="display: none" >
+	<table class="table">
+		    <thead>
+		    <tr>
+		     <td> Notifications</td>
+		    </tr>
+		  </thead>
+		  <tr th:each="noti : ${notificatons}" >
+		     		
+			<td th:text="${noti}"></td>
+					
+		  			
+		  			
+		  </tr>    	
+  		</table>
+	
+	
+	
+	</div>
+	
+	
+	
+	</div>
+	</div>
+	
+	
+<script type="text/javascript">
+$.ajaxSetup({
+	beforeSend : function(xhr, settings) {
+	  if (settings.type == 'POST' || settings.type == 'PUT'
+	      || settings.type == 'DELETE') {
+	    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+	        .test(settings.url))) {
+	      // Only send the token to relative URLs i.e. locally.
+	      xhr.setRequestHeader("X-XSRF-TOKEN",
+	          Cookies.get('XSRF-TOKEN'));
+	    }
+	  }
+	}
+	});
+$.get("/user", function(data) {
+	console.log(data);
+    $("#user").html(data.userAuthentication.details.name);
+    $(".unauthenticated").hide()
+    $(".authenticated").show()
+});
+    
+    function submitBlockUser(){
+    	$('#blockUser').submit();
+    }
+    
+    
+    var logout = function() {
+    	
+        $.post("/logout", function() {
+            $("#user").html('');
+            $(".unauthenticated").show();
+            $(".authenticated").hide();
+        })
+        return true;
+    }
+</script>
+</body>
+</html>

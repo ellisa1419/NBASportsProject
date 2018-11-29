@@ -1,0 +1,114 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+</head>
+<body>
+<div class=" authenticated"  style="display:none">
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<a class="navbar-brand" href="#"> </a>
+			<a class="navbar-brand" href="/">Home</a>
+			<a class="navbar-brand"	href="/teams"> All Teams</a>
+	    	<a class="navbar-brand" href="/" onClick="logout()">Logout</a>
+	</nav>
+</div>
+	<div class="container">
+			
+	Hello, <span id="user"> </span><br/>
+   <h1> <p th:text="  ${teamName} + '!'" /></h1> <br/>
+    
+    
+   <h3> List of previous Wins / Losses for the 2018-2019 Season </h3>
+    
+    <form th:if=" not ${#lists.contains(favTeams,teamId)}" th:action="@{/addToFavorite} " id ="addToFavorite" method="get">
+  			<input type= "hidden" name ="id"  th:value="${teamId}">
+  			<button  class="btn btn-primary" >Add to Favorite</button>
+	</form>
+	
+    <table class="table">
+    <thead>
+    <tr>
+      
+      <th scope="col">Date</th>
+      <th scope="col">Location</th>
+      <th scope="col">Home Team</th>
+      <th scope="col">Away team</th>
+      <th scope="col">Win / Loss </th>
+    </tr>
+  </thead>
+	  <tr th:each="gameDetail : ${gameDetails}" >
+
+	     		<td th:text="${gameDetail.get('date')}" >  </td>
+	  			<td th:text="${gameDetail.get('location')}" >  </td>
+	  			<td th:text="${gameDetail.get('homeTeam')}" >  </td>
+	  			<td th:text="${gameDetail.get('awayTeam')}" >  </td>
+	  			<td th:text="${gameDetail.get('result')}" >  </td>
+	  </tr>    	
+  </table>
+<h3>  Schedule for the 2018-2019 Season </h3>
+  <table class="table">
+    <thead>
+    <tr>
+      
+      <th scope="col">Date</th>
+      <th scope="col">Time</th>
+      <th scope="col">Home team</th>
+      <th scope="col">Away team </th>
+      <th scope="col">Location</th>
+    </tr>
+  </thead>
+	  <tr th:each="gameDetail : ${scheduleDetails}" >
+
+	     		<td th:text="${gameDetail.get('date')}" >  </td>
+	     		<td th:text="${gameDetail.get('time')}" >  </td>
+	     		<td th:text="${gameDetail.get('homeTeam')}" >  </td>
+	  			<td th:text="${gameDetail.get('awayTeam')}" >  </td>
+	  			<td th:text="${gameDetail.get('location')}" >  </td>
+	  </tr>    	
+  </table>
+  
+  
+	</div>
+	
+<script type="text/javascript">
+$.ajaxSetup({
+	beforeSend : function(xhr, settings) {
+	  if (settings.type == 'POST' || settings.type == 'PUT'
+	      || settings.type == 'DELETE') {
+	    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+	        .test(settings.url))) {
+	      // Only send the token to relative URLs i.e. locally.
+	      xhr.setRequestHeader("X-XSRF-TOKEN",
+	          Cookies.get('XSRF-TOKEN'));
+	    }
+	  }
+	}
+	});
+    $.get("/user", function(data) {
+        $("#user").html(data.userAuthentication.details.name);
+        $(".unauthenticated").hide()
+        $(".authenticated").show()
+        
+    });
+    
+    var logout = function() {
+        $.post("/logout", function() {
+            $("#user").html('');
+            $(".unauthenticated").show();
+            $(".authenticated").hide();
+            window.location.href = "/";
+        })
+        return true;
+    }
+</script>
+</body>
+</html>

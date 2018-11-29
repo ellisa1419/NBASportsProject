@@ -1,0 +1,103 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <title>Demo</title>
+    <meta name="description" content=""/>
+    <meta name="viewport" content="width=device-width"/>
+    <base href="/"/>
+    <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css"/>
+    <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+</head>
+<body>
+
+<div class="authenticated">
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<a class="navbar-brand" href="#"> </a>
+			<a class="navbar-brand" href="/">Home</a>
+			<a class="navbar-brand"	href="/teams">All Teams</a>
+			<div class="navbar-brand authenticated">
+	    	<button onClick="logout()" class="btn btn-primary">Logout</button>
+	  		</div>
+		</nav>
+		
+		
+</div>
+	<div class="container">
+		<div class=" authenticated" style="display:none">
+		    Logged in as: <span id="user"> </span>	
+		</div>
+		
+	<span id="user"> </span>
+    
+    <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Code</th>
+      <th scope="col">Name</th>
+      <th scope="col">City</th>
+      <th scope="col">Rank </th>
+      <th scope="col">Add to Favorites </th>
+    </tr>
+  </thead>
+  
+    	<tr th:each="teamStandingEntry : ${teamStandingEntries}" >
+     		<td th:text="${teamStandingEntry.team.Abbreviation}" th:id="${teamStandingEntry.team.ID}">
+     		<td > <a th:href="@{~/team?id=} + ${teamStandingEntry.team.ID}" th:text="${teamStandingEntry.team.Name}"> </a> </td>
+  			<td th:text="${teamStandingEntry.team.City}">
+  			<td th:text="${teamStandingEntry.rank}">
+  			
+  			<td th:if=" not ${#lists.contains(favTeams,teamStandingEntry.team.ID)}">
+  				<form  th:action="@{/addToFavorite} " id ="addToFavorite" method="get">
+  				<input type= "hidden" name ="id"  th:value="${teamStandingEntry.team.ID}">
+  				
+					<button  class="btn btn-primary" onClick="submitFav" >Add to Favorite</button>
+				</form>
+  			</td>
+  			<td th:if="  ${#lists.contains(favTeams,teamStandingEntry.team.ID)}">
+  				Favorite
+  			</td>
+  		</tr>
+    </table>
+	</div>
+	
+<script type="text/javascript">
+$.ajaxSetup({
+	beforeSend : function(xhr, settings) {
+	  if (settings.type == 'POST' || settings.type == 'PUT'
+	      || settings.type == 'DELETE') {
+	    if (!(/^http:.*/.test(settings.url) || /^https:.*/
+	        .test(settings.url))) {
+	      // Only send the token to relative URLs i.e. locally.
+	      xhr.setRequestHeader("X-XSRF-TOKEN",
+	          Cookies.get('XSRF-TOKEN'));
+	    }
+	  }
+	}
+	});
+    $.get("/user", function(data) {
+        $("#user").html(data.userAuthentication.details.name);
+        $(".unauthenticated").hide()
+        $(".authenticated").show()
+        
+    });
+    
+    function submitFav(){
+    	$('#addToFavorite').submit();
+    }
+    
+    var logout = function() {
+        $.post("/logout", function() {
+            $("#user").html('');
+            $(".unauthenticated").show();
+            $(".authenticated").hide();
+            window.location.href = "/";
+        })
+        return true;
+    }
+</script>
+</body>
+</html>
