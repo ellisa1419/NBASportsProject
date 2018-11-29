@@ -16,7 +16,7 @@ logging:
     org.springframework.security: DEBUG
     
     
-spring:
+spring:  
   main:
     allow-bean-definition-overriding: true
 
@@ -26,3 +26,13 @@ spring:
     url: jdbc:postgresql://se-term-project.c5rdsiue8ak6.us-east-2.rds.amazonaws.com:5432/se_term_project
     username : ellisa
     password: Password*987
+
+server:
+  port: 8443
+  ssl:
+    key-store-type: PKCS12
+    key-store: classpath:keystore.p12
+    key-store-password: ellisa
+    key-alias: tomcat
+    
+  

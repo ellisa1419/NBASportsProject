@@ -21,7 +21,6 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@SpringBootApplication
 @EnableOAuth2Sso
 @RestController
 public class Login extends WebSecurityConfigurerAdapter{
@@ -67,8 +66,8 @@ public class Login extends WebSecurityConfigurerAdapter{
 	        .permitAll()
 	      .anyRequest()
 	        .authenticated()
-	        .and().logout().invalidateHttpSession(true).logoutSuccessUrl("/").permitAll()
-	        .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
+	        .and().logout().logoutSuccessUrl("/").permitAll()
+	        .and().csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()).and().httpBasic();;
 	  }
 	
 	
